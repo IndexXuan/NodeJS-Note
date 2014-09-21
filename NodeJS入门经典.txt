@@ -1,0 +1,272 @@
+new start ， come on !
+
+说明：  本文件记录知识点，技巧，困难克服与学习过程（时间、代码位置） 
+        --- --- 学习时间起始线 
+        ( 文件夹与代码记录 )
+
+---  @@@@@@ 2014 3 21 22:40 start  @@@@@@ ---
+
+一、复习并安装，下载安装包 安装
+    改进易用性：
+        开机禁止本地apache服务器自动启动。
+        cmd路径改为D:/nodejs/  优化cmd界面配色 大小
+        设置npm模块安装默认路径为新建的（node_global和node_cache）
+            方法：npm config set prefix "D:/nodejs/node_global"  
+                  npm config set cache "D:/nodejs/node_cache"
+
+二、小试身手
+    安装了http模块，确实正确的安装在了nodejs/node_global/node_modules/http
+    新建httpdemo文件夹,写入代码，***终端转移到httpdemo文件夹 cd yourFolder
+    执行node yourName.js 回车 ok！！！可看到console消息，打开浏览器，查看结果
+    ( 新建httpdemo ： server.js ) 
+---  @@@@@@ /.2014 3 21 23:20 end  @@@@@@ ---  
+
+---  @@@@@@ 2014 3 22 10:00 start  @@@@@@ ---
+    ( 复习并继续httpdemo : Location.js, parseUrl.js, Htmlclient.js )
+    *****关闭进程 ctrl + c***** 进行下一步操作
+
+三、Express入门
+    安装：npm install -g express ok
+    检查 cd node_global\express some infos
+    node app.js      oh, error : module jade is needed so...
+    按照infos提示 install dependencies: cd . && npm install  start get jade 
+                  run the app         : node app.js          Wow,everything ok!
+    发现站点文件夹创建在了node_global里面，并且原来的东西都被覆盖了，于是考虑
+    在nodejs/新建express文件夹，将express都移动过来，cd到相应地方，测试 成功！
+    又做了原来httpdemo文件夹里的测试，同样成功。
+    点：默认安装路径node_global就当作暂住地，同时保持洁净，文件夹一定要创建好，否则很乱。
+
+    express
+        ---- node_modules (依赖模块)
+                 ---- .bin (貌似一般建立不了以"."开头的文件夹...)
+                 ---- express 
+                      ---- core and so on
+                 ---- jade
+                      ---- core and so on
+        ---- express骨干站点推荐文件夹结构
+           
+四、介绍jade
+    模版引擎生成的HTML，通常在视图文件夹中使用，也叫模版处理器。
+    常见流行的有 smarty（PHP），ERB（Ruby）
+
+    Jade比html要简洁的多，靠缩进定义文档层次结构，无需标签，无需关闭，均为自动的
+    受Haml（Ruby）启发较多
+
+    为何要使用模版？
+        显示一组保存在数据库的博客帖子
+        创建一个模版用于显示许多不同的博客帖子
+        按变量的值更改页面，如title
+        创建跨文件通用代码，如header，footer
+
+    jade demo:cd express: express jade_structure 按照提示安装依赖 形成express/jade_structure/
+    点 : 必须在有express node_module的同级文件夹下使用命令。存疑 ：不是 -g了吗。。。
+    (保留核心node_module,删除jade_structure同级的其他文件夹，形成express统领下各个demo
+    如：jade_structure、demo2、demo3... ）
+
+    ( 修改view/index.jade,顶部有extends layout.jade，查看layout.jade，发现划定了基本
+    页面结构，修改后重新载入页面，查看源代码，发现都被压缩了。以后把自己的css库引入，就一样
+    可以写页面了，要熟悉模版语言，不过缩进式似乎不好灵活的修改页面结构，再看吧... ）
+
+    可以输出变量，循环，条件，内联js，include，Mixin（特色）
+
+---  @@@@@@ /.2014 3 22 12：05 end  @@@@@@ ---
+
+---  @@@@@@ 2014 3 22 16:30 start  @@@@@@ ---
+
+    熟悉jade模版的使用，缩进代表页面层次结构很好，但是稍有不慎就会出现问题，还有一个wrapper，
+    内部包含一些元素，即使新标签比wrapper缩进但是还是没达到wrapper的第一个子元素的缩进程度，
+    那么这个新标签将和wrapper同级。。。
+
+    变量：注意格式 
+        - var name = "aaa";
+        h1 Hello #{name} ! 还是注意缩进，弄不好就报错。。。
+
+    循环：变量数组的缩进也很重要，为了避免过度缩进，约定变量数组等不缩进，真正的html标签缩进
+    点：p = user不可以有空格，必须为"p= user"!!!
+
+    条件：还好。。。不过更加体会到，html语句与模版语言一定有不同缩进，要不报错！！！
+
+    内联js：按照书本上写的不行，最后把script和语句写在一行，就ok了。暂时这样吧。。。
+
+    include：so easy 
+
+    mixin: 如果能灵活运用的话，很好很强大！！！
+
+---  @@@@@@  2014 3 22 18：15 end @@@@@@ ---    
+
+五、深入学习Express   
+    (1) Web应用程序中的路由
+         
+---  @@@@@@  2014 3 23 11:30 start @@@@@@ ---
+
+    (新建express_post，学习post等路由知识)
+    表单中的数据可以被post出去，可以通过浏览器post header查看。
+    通过建立app.get() app.post()...,可以使应用做出各种应答，但是，会使文件变的面目全非，不可维护和扩展。于是，
+    在route文件夹下专门有一个包含路由声明的文件，将处理函数赋给一个可以在别的地方使用的变量，通过使用require
+    语句并且将其赋予一个变量，就可以在主程序中以route.变量 来使用。exports.index = function(req,res) {处理逻辑}
+    app.js里就可以用app.get('/', routes.index)来使用路由逻辑;
+
+      好处：
+        1.使代码更容易维护，更可读
+        2.可以使用版本控制来快速查看一个文件的历史
+        3.它支持应用程序的未来成长，同时又保持其可读性可维护性
+
+    (2) 视图渲染：
+        我们之前都使用简单的res.send()来输出回应，但是现在要使用res.render()来进行更加强大的渲染，比如输出页面
+        app.get('/', function(req, res) {
+            res.render('index.jade', {title : 'My site'});
+        });
+        可知：view/index.jade用于表现页面，变量title被分配到了页面上，可用。默认布局模版为layout.jade，想改变
+        可使用res.render('page.jade', { layout : 'costom_layout.jade' }); 不想使用布局，可以 { layout : false }
+    
+    (3) 使用本地变量
+        刚才路由模块我们见到了使用本地变量，理解了它我们就可以做出更加复杂的应用了，意味着我们可以：
+            1.从数据库中获取数据 (形成数组或者对象，分配过去，类似smarty->assign('去想名'，'变量') )
+            2.从API中获取数据
+            3.进行一些简单的计算
+            4.合并字符串
+
+---  @@@@@@ 2014 3 23 13:00 去午饭，娱乐，看电影 16：30继续   @@@@@@ ---
+
+六、数据的持久化 --- MongoDB数据库
+    (新建express_file文件夹，app.js里写入读取)
+    (1) 写入读取文件
+        写入：引入文件模块 fs， writeFile(fileName, data, callback); 
+        读取：引入文件模块 fs， readFile(fileName, 'utf-8', callback);
+
+    (2) 读取环境变量
+        window下： SET SOMETHING = '12345678'
+        UNIX下  ： export SOMETHING = '12345678'
+
+        var something = process.env.SOMETHING
+
+    (3) 使用数据库！！！！！！ 2014 0503 复习, 感叹一日不见，如隔三秋，好多陌生与不会...
+        NoSQL数据库 如：CAssandra，Redis，Memcached，MangoDB，Hadoop等，Node.js作为一种颠覆性技术，很适合NoSQL
+
+        在Node.js中使用MongoDB
+        MongoDB是Node.js社区中的流行选择，面向文档的数据库，可执行关系数据库的大多数功能，旨在提供高度的可用性
+        和可扩展性。
+
+        安装:
+          官网下载：安装，解压后拷贝到mongodb文件夹，手工创建data(db和log子文件夹) cmd cd到mongodb/bin
+          执行D:/nodejs/mongodb/bin>mongod.exe --dbpath D:/nodejs/mongodb/data/db （注意防火墙提示和设置,网络选专用和公用）
+            返回一些信息，打开浏览器可在 localhost:28017 看到一些信息 （也可以使用--port参数设置端口）
+          点击bin/mongo.exe 测试>
+
+            3+3
+            6
+            > db
+            test
+            > // the first write will create the db:
+            > db.foo.insert( { a : 1 } )
+            > db.foo.find()
+            { _id : ObjectId("532ed637e4cfdcf2b0fdea0a") , a : 1 }    
+
+          这样每次启动都太麻烦，都需要手动输入大量命令，于是我们想到了，可以向MySql那样做为一个系统服务，于是以
+          管理员身份运行命令行工具！！！ 关键点：管理员身份，否则会遇到Service Control Manager拒绝访问错误
+
+          安装为系统服务：（设定好数据库和日志路径，且每个数据库自动单独建立文件夹）管理员模式 --> d: -->cd到
+          nodejs\mongodb\bin,即mongod.exe所在位置，然后开始输入: 
+          mongod --logpath D:\nodejs\mongodb\logs\mongodb.log  --logappend --dbpath D:\nodejs\mongodb\data\db\ 
+          --directoryperdb --serviceName MongoDB --install
+              net start MongoDB   启动MongoDB
+              net stop MongoDB    停止MongoDB
+              sc delete MongoDB   删除MongoDB    超级方便！！！！！！ 进入localhost:28017测试验证
+          注意:上面三个命令同样需要管理员模式(2014 05 03复习并补充在此)    
+
+            代码有错误，弄得费了好久才出现connect to mongo successfully! 那一刻，世界太美妙了，虽然还有点稀里糊涂。
+          
+        定义文档：
+
+            var mongoose = require('mongoose');
+            mongoose.connect('mongodb://localhost/todo_development')
+            var Schema = mongoose.Schema;
+            var ObjectId = Schema.ObjectId;
+
+            var Task = new Schema({
+                task : String
+            });
+
+            var task = mongoose.model('Task', Task);
+
+---  @@@@@@ 之间有娱乐 至2014 3 23 23:10 end @@@@@@ ---
+
+---  @@@@@@ 2014 3 24 19:30 start @@@@@@ ---
+
+        todo_list实例不顺利，未解决错误。。。复习与调试
+
+---  @@@@@@ 2014 3 24 20:30 end  @@@@@@ ---
+
+---  @@@@@@ 2014 3 25 21:50 start  @@@@@@ ---
+
+七、Socket.IO 
+    （1）基础连接示例
+    按照书本P151学习，还算顺利，建立了通信！！！效果不错。（修改了书中的一个小错误，socket.io.js路径错误）
+    对了，今天安装了cnpm，还没用过，据说是国内最好的镜像
+
+    （2）从服务器发送数据到客户端
+    socket.emit('事件名词', { //info... }); //发送事件
+    socket.broadcast.emit('事件名词'， { //...info}); //广播事件
+
+---  @@@@@@ 2014 3 25 22:50 end  @@@@@@ ---
+
+---  @@@@@@ 2014 3 24 12:30 start  @@@@@@ ---
+
+    看书，复习！
+
+---  @@@@@@ 2014 3 26 13:05 end  @@@@@@ ---
+
+---  @@@@@@ 中午看了一会书 2014 3 27 20:10 start  @@@@@@ ---
+
+    (3) 将数据广播到客户端以及客户端反馈消息服务器再广播
+    现在已经可以有一个完整的信息交流渠道，只要客户端引入socket.io.js，连接服务器，服务器socket模块监听server
+    有连接（connection），则可以发消息，统计人数并发消息或广播。客户端也可以通过表单提交信息，服务器过滤，广播
+    到其他用户，完成实时聊天室。
+
+    点：服务器当前文件夹指的是哪一个？（类似于apache的www）：现在来看，是node_module.存疑
+
+---  @@@@@@ 2014 3 27 21:05 end  @@@@@@ ---
+
+
+---  @@@@@@ 2014 3 31 17:30 start  @@@@@@ ---
+
+    完善messaging例子，引用了外站的jQuery，还是有问题，没成功。。。
+
+    完成Socket.io双向数据 PING_PONG 实例
+
+八、一个Socket.IO聊天服务器
+
+    与Express一起使用Socket.IO
+
+    新建socket.io_express文件夹
+    点：固定步骤：package.json，app.js，index.html... --> npm install ---> node app.js  
+      
+
+---  @@@@@@ 2014 3 31 18:35 end  @@@@@@ ---
+
+   
+---  @@@@@@ 2014 6 26 21:08 start  @@@@@@ ---
+
+    总结今晚所学，怎么说那，几天不学，又忘了不少。。。今天升级了node的版本，来到了0.10.29，以前为0.10.26
+    体验了百度前端工程化框架FIS，以及其的lights包管理。
+    新安装的node global配置搞不好，弄得-g安装的包全部在C:\。。。,环境变量改了，cmd（管理员模式）尝试了，还是不好。
+    这回体验到了，-g安装的区别，简单的说就是可以用命令行了。所以大型工具包肯定要全局安装。
+    FIS提供了：
+
+    FIS是专为解决前端开发中自动化工具、性能优化、模块化框架、开发规范、代码部署、开发流程等问题的工具框架。
+    使用FIS我们可以快速的完成各种前端项目的资源压缩、合并等等各种性能优化工作，同时FIS还提供了大量的开发辅助功能
+    首先我们了解一下FIS的基本命令
+    fis install : 命令安装fis仓库提供的各种 组件、框架、示例、素材、配置等 开发资源。
+    fis release: 命令用于编译并发布的你的项目，拥有多个参数调整编译发布操作。
+    fis server: 命令可以启动一个本地调试服务器用于预览fis release产出的项目。
+
+    fis server start   可以使用Java和PHP环境
+    fis server start --type node 启动node服务器
+
+    fis release -o(资源优化)
+    fis release --md5(文件加md5戳)
+
+
+
+
+
