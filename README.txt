@@ -1,4 +1,4 @@
-Author xiaoxuan
-2014 3
+Author IndexXuan
+Date   2014 3
 
-NodeJS入门经典学习笔记
+《Nodejs入门经典》学习笔记
